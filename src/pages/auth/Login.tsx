@@ -118,13 +118,6 @@ export const Login: React.FC = () => {
                             </Link>
                         </p>
                     </div>
-
-                    {/* Demo credentials hint */}
-                    <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                        <p className="text-blue-900 text-xs font-semibold mb-1">Demo Admin:</p>
-                        <p className="text-blue-700 text-xs">Email: admin@pmi.com</p>
-                        <p className="text-blue-700 text-xs">Password: admin123</p>
-                    </div>
                 </div>
             </div>
         </div>

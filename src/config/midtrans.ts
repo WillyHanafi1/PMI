@@ -1,4 +1,18 @@
-// Midtrans configuration - PLACEHOLDER
+// Midtrans configuration
+
+// Declare global window type for Midtrans Snap
+declare global {
+    interface Window {
+        snap?: {
+            pay: (snapToken: string, callbacks: {
+                onSuccess?: (result: any) => void;
+                onPending?: (result: any) => void;
+                onError?: (result: any) => void;
+                onClose?: () => void;
+            }) => void;
+        };
+    }
+}
 
 export const midtransConfig = {
     clientKey: import.meta.env.VITE_MIDTRANS_CLIENT_KEY || 'SB-Mid-client-PLACEHOLDER_KEY',
@@ -16,7 +30,7 @@ export const getSnapUrl = () => {
 // Load Midtrans Snap script
 export const loadMidtransScript = (): Promise<void> => {
     return new Promise((resolve, reject) => {
-        if ((window as any).snap) {
+        if (window.snap) {
             resolve();
             return;
         }
@@ -30,25 +44,41 @@ export const loadMidtransScript = (): Promise<void> => {
     });
 };
 
-// Open Midtrans payment popup
-export const openMidtransPayment = (snapToken: string, onSuccess: () => void, onPending: () => void, onError: () => void) => {
-    if ((window as any).snap) {
-        (window as any).snap.pay(snapToken, {
-            onSuccess: () => {
-                console.log('Payment success');
-                onSuccess();
-            },
-            onPending: () => {
-                console.log('Payment pending');
-                onPending();
-            },
-            onError: () => {
-                console.log('Payment error');
-                onError();
-            },
-            onClose: () => {
-                console.log('Payment popup closed');
-            },
-        });
+/**
+ * Open Midtrans Snap payment popup
+ * @param snapToken - Token from createTransaction
+ * @param callbacks - Payment callbacks
+ */
+export const openMidtransSnap = (
+    snapToken: string,
+    callbacks: {
+        onSuccess?: (result: any) => void;
+        onPending?: (result: any) => void;
+        onError?: (result: any) => void;
+        onClose?: () => void;
     }
+) => {
+    if (!window.snap) {
+        console.error('Midtrans Snap script not loaded');
+        return;
+    }
+
+    window.snap.pay(snapToken, {
+        onSuccess: (result: any) => {
+            console.log('Payment success:', result);
+            if (callbacks.onSuccess) callbacks.onSuccess(result);
+        },
+        onPending: (result: any) => {
+            console.log('Payment pending:', result);
+            if (callbacks.onPending) callbacks.onPending(result);
+        },
+        onError: (result: any) => {
+            console.error('Payment error:', result);
+            if (callbacks.onError) callbacks.onError(result);
+        },
+        onClose: () => {
+            console.log('Payment popup closed');
+            if (callbacks.onClose) callbacks.onClose();
+        }
+    });
 };
