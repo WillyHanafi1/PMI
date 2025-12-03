@@ -65,14 +65,31 @@ firebase init
 - Install dependencies: **Yes**
 
 ### D. Configure Functions Environment
-Set Midtrans credentials untuk Cloud Functions:
+
+**NEW: Using .env File (Recommended)**
+
+1. Navigate to functions folder:
 ```powershell
-firebase functions:config:set midtrans.server_key="YOUR_MIDTRANS_SERVER_KEY"
-firebase functions:config:set midtrans.client_key="YOUR_MIDTRANS_CLIENT_KEY"
-firebase functions:config:set app.url="http://localhost:5173"
+cd functions
 ```
 
-**Note:** Ganti `http://localhost:5173` dengan URL production Anda nanti.
+2. Copy the example file:
+```powershell
+cp .env.example .env
+```
+
+3. Edit `.env` file and fill in your Midtrans credentials:
+```env
+MIDTRANS_SERVER_KEY=SB-Mid-server-YOUR_KEY_HERE
+MIDTRANS_CLIENT_KEY=SB-Mid-client-YOUR_KEY_HERE
+MIDTRANS_IS_PRODUCTION=false
+APP_URL=http://localhost:3000
+```
+
+**Note:** For production, update `APP_URL` to your deployed URL and set `MIDTRANS_IS_PRODUCTION=true`.
+
+> [!IMPORTANT]
+> Never commit the `.env` file to Git! It's already in `.gitignore`.
 
 ### E. Install Functions Dependencies
 ```powershell
@@ -187,11 +204,18 @@ VITE_MIDTRANS_SERVER_KEY=Mid-server-PRODUCTION_KEY
 VITE_MIDTRANS_IS_PRODUCTION=true
 ```
 
-#### B. Update Functions Config
+#### B. Update Functions Environment
+1. Edit `functions/.env`:
+```env
+MIDTRANS_SERVER_KEY=Mid-server-PRODUCTION_KEY
+MIDTRANS_CLIENT_KEY=Mid-client-PRODUCTION_KEY
+MIDTRANS_IS_PRODUCTION=true
+APP_URL=https://your-production-url.com
+```
+
+2. Redeploy functions:
 ```powershell
-firebase functions:config:set midtrans.server_key="PRODUCTION_SERVER_KEY"
-firebase functions:config:set midtrans.client_key="PRODUCTION_CLIENT_KEY"
-firebase functions:config:set app.url="https://your-production-url.com"
+firebase deploy --only functions
 ```
 
 #### C. Build & Deploy
@@ -233,7 +257,10 @@ firebase deploy
 PMI/
 ├── functions/
 │   ├── index.js           # Firebase Cloud Functions
-│   └── package.json      # Functions dependencies
+│   ├── package.json      # Functions dependencies
+│   ├── .env              # Environment variables (NEVER COMMIT!)
+│   ├── .env.example      # Template for .env
+│   └── .gitignore        # Protects .env from Git
 ├── firebase.json          # Firebase config
 ├── .firebaseignore
 └── src/
@@ -251,9 +278,11 @@ PMI/
 ##  Development Checklist
 
 Before testing:
-- [ ] Midtrans Sandbox credentials in `.env`
+- [ ] Midtrans Sandbox credentials in root `.env`
+- [ ] Midtrans credentials in `functions/.env`
 - [ ] Firebase CLI installed
 - [ ] Firebase project initialized
+- [ ] Functions dependencies installed (`cd functions && npm install`)
 - [ ] Functions deployed
 - [ ] Webhook URL configured in Midtrans
 - [ ] Test cards ready

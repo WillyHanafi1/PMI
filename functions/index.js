@@ -2,14 +2,15 @@ const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 const midtransClient = require('midtrans-client');
 const cors = require('cors')({ origin: true });
+require('dotenv').config();
 
 admin.initializeApp();
 
-// Midtrans Configuration
+// Midtrans Configuration from Environment Variables
 const snap = new midtransClient.Snap({
-    isProduction: false, // Sandbox mode
-    serverKey: functions.config().midtrans.server_key,
-    clientKey: functions.config().midtrans.client_key
+    isProduction: process.env.MIDTRANS_IS_PRODUCTION === 'true',
+    serverKey: process.env.MIDTRANS_SERVER_KEY,
+    clientKey: process.env.MIDTRANS_CLIENT_KEY
 });
 
 /**
@@ -92,9 +93,9 @@ exports.createTransaction = functions.https.onCall(async (data, context) => {
                 }
             },
             callbacks: {
-                finish: `${functions.config().app.url}/payment/success`,
-                error: `${functions.config().app.url}/payment/error`,
-                pending: `${functions.config().app.url}/payment/pending`
+                finish: `${process.env.APP_URL}/payment/success`,
+                error: `${process.env.APP_URL}/payment/error`,
+                pending: `${process.env.APP_URL}/payment/pending`
             }
         };
 
